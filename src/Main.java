@@ -39,12 +39,12 @@ public class Main {
         Wordle wordle = new Wordle(randomWord);
 
         System.out.println("Welcome to Wordle!");
-        System.out.println("G = Green (correct spot), Y = Yellow (wrong spot), X = Not in word");
+        System.out.println("G = Green (correct spot), Y = Yellow (wrong spot), X = Red (Not in word)");
         int attempts = 0;
-        final int maxiumumAttempts = 6;
-        boolean guessed = false;
+        final int maxiumumAttempts = 6; //max number of attempts before user loses
+        boolean guessed = false; // sets the word that is to be guessed to false, so it fits with the while loop.
 
-        while (attempts < maxiumumAttempts && !guessed) {
+        while (attempts < maxiumumAttempts && !guessed) { // will loop till either max attempts equals 0 or the user guesses the word
             System.out.println("\nPlease enter your guess #" + (attempts + 1) + ": ");
             String guess = input.nextLine().trim();
 
@@ -57,7 +57,7 @@ public class Main {
             char[] result = wordle.checkGuess(guess);
             System.out.print("Result: ");
             for (int i = 0; i < result.length; i++) {
-                switch (result[i]) {
+                switch (result[i]) { // Switch statement that will print out a color corresponding to the correctness of the letter in the word
                     case 'G':
                         System.out.print("\u001B[42m \u001B[0m");
                         break;
@@ -65,7 +65,7 @@ public class Main {
                         System.out.print("\u001B[43m \u001B[0m");
                         break;
                     case 'X':
-                        System.out.print("\u001B[40m \u001B[0m");
+                        System.out.print("\u001B[41m \u001B[0m");
                         break;
                 }
             }
