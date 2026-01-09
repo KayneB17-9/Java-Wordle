@@ -1,0 +1,147 @@
+[33mcommit cc3d6bfc25928176dbd2923ab1a623bd442c7449[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Kayne <student.160774@worcesterschools.net>
+Date:   Wed Jan 7 12:37:03 2026 -0500
+
+    Added Hint Feature
+
+[1mdiff --git a/src/Main.java b/src/Main.java[m
+[1mindex 9c727db..e5f33ed 100644[m
+[1m--- a/src/Main.java[m
+[1m+++ b/src/Main.java[m
+[36m@@ -32,19 +32,19 @@[m [mpublic class Main {[m
+ [m
+         Random rand = new Random();[m
+         String randomWord = words.get(rand.nextInt(words.size())); // gets a random word from the words file[m
+[31m-       // System.out.println("Random word: " + randomWord);[m
+[32m+[m[32m        // System.out.println("Random word: " + randomWord);[m
+ [m
+         Scanner input = new Scanner(System.in);[m
+ [m
+         Wordle wordle = new Wordle(randomWord);[m
+ [m
+         System.out.println("Welcome to Wordle!");[m
+[31m-        System.out.println("G = Green (correct spot), Y = Yellow (wrong spot), X = Red (Not in word)");[m
+[32m+[m[32m        System.out.println("G = Green (correct spot), Y = Yellow (wrong spot), X = Not in word");[m
+         int attempts = 0;[m
+[31m-        final int maxiumumAttempts = 6; //max number of attempts before user loses[m
+[31m-        boolean guessed = false; // sets the word that is to be guessed to false, so it fits with the while loop.[m
+[32m+[m[32m        final int maxiumumAttempts = 6;[m
+[32m+[m[32m        boolean guessed = false;[m
+ [m
+[31m-        while (attempts < maxiumumAttempts && !guessed) { // will loop till either max attempts equals 0 or the user guesses the word[m
+[32m+[m[32m        while (attempts < maxiumumAttempts && !guessed) {[m
+             System.out.println("\nPlease enter your guess #" + (attempts + 1) + ": ");[m
+             String guess = input.nextLine().trim();[m
+ [m
+[36m@@ -54,18 +54,28 @@[m [mpublic class Main {[m
+             }[m
+ [m
+ [m
+[32m+[m
+[32m+[m
+[32m+[m
+             char[] result = wordle.checkGuess(guess);[m
+[32m+[m[32m            if(attempts >= 3) {[m
+[32m+[m[32m                Character hint = wordle.getRandomLetterUnUsed();[m
+[32m+[m[32m                if (hint != null) {[m
+[32m+[m[32m                    System.out.println("\nHINT: The word contains the letter '" + hint + "'" );[m
+[32m+[m[32m                }[m
+[32m+[m
+[32m+[m[32m            }[m
+             System.out.print("Result: ");[m
+             for (int i = 0; i < result.length; i++) {[m
+[31m-                switch (result[i]) { // Switch statement that will print out a color corresponding to the correctness of the letter in the word[m
+[32m+[m[32m                switch (result[i]) {[m
+                     case 'G':[m
+[31m-                        System.out.print("\u001B[42m \u001B[0m");[m
+[32m+[m[32m                        System.out.print("\u001B[42m\u001B[30m "  + guess.charAt(i) + " \u001B[0m ");[m
+                         break;[m
+                     case 'Y':[m
+[31m-                        System.out.print("\u001B[43m \u001B[0m");[m
+[32m+[m[32m                        System.out.print("\u001B[43m\u001B[30m " + guess.charAt(i) + " \u001B[0m ");[m
+                         break;[m
+                     case 'X':[m
+[31m-                        System.out.print("\u001B[41m \u001B[0m");[m
+[32m+[m[32m                        System.out.print("\u001B[41m\u001B[30m " + guess.charAt(i) + " \u001B[0m ");[m
+                         break;[m
+                 }[m
+             }[m
+[36m@@ -88,7 +98,4 @@[m [mpublic class Main {[m
+ [m
+ [m
+     }[m
+[31m-}[m
+[31m-[m
+[31m-[m
+[31m-[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/src/Wordle.java b/src/Wordle.java[m
+[1mindex 8bb696e..3f27032 100644[m
+[1m--- a/src/Wordle.java[m
+[1m+++ b/src/Wordle.java[m
+[36m@@ -1,5 +1,12 @@[m
+[32m+[m[32mimport java.util.Random;[m
+[32m+[m[32mimport java.util.HashSet;[m
+[32m+[m[32mimport java.util.Set;[m
+ public class Wordle {[m
+     private String targetWord;[m
+[32m+[m[32m    private Set<Integer> usedHintIndexes = new HashSet<>();[m
+[32m+[m[32m    private Set<Integer> correctLettersIndexes = new HashSet<>();[m
+[32m+[m[32m    private Set<Integer> yellowIndexes = new HashSet<>();[m
+[32m+[m[32m    private Random rand = new Random();[m
+ [m
+     public Wordle(String targetWord) {[m
+         this.targetWord = targetWord.toUpperCase();[m
+[36m@@ -9,6 +16,21 @@[m [mpublic class Wordle {[m
+         return targetWord;[m
+     }[m
+ [m
+[32m+[m[32m    public Character getRandomLetterUnUsed() {[m
+[32m+[m[32m        if (usedHintIndexes.size() == targetWord.length()) {[m
+[32m+[m[32m            return null;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        int index;[m
+[32m+[m[32m        do {[m
+[32m+[m[32m            index = rand.nextInt(targetWord.length());[m
+[32m+[m[32m        } while (usedHintIndexes.contains(index) || correctLettersIndexes.contains(index));[m
+[32m+[m
+[32m+[m[32m        usedHintIndexes.add(index);[m
+[32m+[m[32m        return targetWord.charAt(index);[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m
+[32m+[m
+ [m
+     public char[] checkGuess(String guess) {[m
+         guess = guess.toUpperCase();[m
+[36m@@ -23,6 +45,7 @@[m [mpublic class Wordle {[m
+             if (guess.charAt(i) == targetWord.charAt(i)) {[m
+                 colors[i] = 'G';[m
+                 targetLetterCount[guess.charAt(i) - 'A']--;[m
+[32m+[m[32m                correctLettersIndexes.add(i);[m
+             } else {[m
+                 colors[i] = ' ';[m
+ [m
+[36m@@ -35,11 +58,15 @@[m [mpublic class Wordle {[m
+                 if (targetLetterCount[idx] >0) {[m
+                     colors[i] = 'Y';[m
+                     targetLetterCount[idx]--;[m
+[32m+[m[32m                    yellowIndexes.add(i);[m
+                 } else {[m
+                     colors[i] = 'X';[m
+                 }[m
+             }[m
+         }[m
+[32m+[m
+[32m+[m
+[32m+[m
+         return colors;[m
+     }[m
+ [m
+[36m@@ -47,3 +74,5 @@[m [mpublic class Wordle {[m
+ [m
+ [m
+ [m
+[41m+[m
+[41m+[m
